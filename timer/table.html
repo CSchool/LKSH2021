@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=11"> 
+		<meta name="viewport" content="width=1024">
+		<meta name="Description" CONTENT="Вебкумир">
+		<title>Турнирная таблица</title>
+		<script type="text/javascript">
+
+function SaveVal(a, b) {
+	localStorage.setItem(a, b);
+}
+function GetVal(a, b) {
+	if (null != localStorage.getItem(a))
+		return localStorage.getItem(a);
+	else
+		return b;
+}
+var names=['Мега морф','Кибер Тапочек','Глазированный бык','Бандито-кодо-жук'];
+var table=[];
+function ini()
+{
+	for (var i=0;i<names.length;i++)
+	{
+		table[i]=[];
+		for (var j=0;j<names.length;j++)
+		{
+			table[i][j]=~~GetVal(i+'_'+j,0);
+		}
+	}
+	var s='<table border="1">';
+	s+='<tr><th>\\</th>';
+	for (var j=0;j<names.length;j++)
+	{ 
+		s+='<th>'+names[j]+'</th>';
+	}
+	s+='<th>Сумма</th>';
+	s+='</tr>';
+  
+	for (var i=0;i<names.length;i++)
+	{
+		s+='<tr>'+'<th>'+names[i]+'</th>';
+		var sum=0;
+		for (var j=0;j<names.length;j++)
+		if (i!=j)
+		{ 
+			s+='<td><input type="number" id="n_'+i+'_'+j+'" size="2" name="num" min="0" max="9" value="'+table[i][j]+'"></td>';
+			sum+=table[i][j];
+		}
+		else
+		{
+			s+='<td></td>';
+		}
+		s+='<th id="s_'+i+'">'+sum+'</th>';
+		s+='</tr>';
+	}
+	s+='</table>';
+	document.getElementById('tabl').innerHTML=s;
+	//setInterval(function f(){},1000);
+	setInterval(function f(){
+	for (var i=0;i<names.length;i++)
+	{
+		var sum=0;
+		for (var j=0;j<names.length;j++)
+		if (i!=j)
+		{ 
+			SaveVal(i+'_'+j,document.getElementById('n_'+i+'_'+j).value%10);
+			if (((~~document.getElementById('n_'+i+'_'+j).value)%10)+''!=document.getElementById('n_'+i+'_'+j).value && document.getElementById('n_'+i+'_'+j).value!='')
+				document.getElementById('n_'+i+'_'+j).value=((~~document.getElementById('n_'+i+'_'+j).value)%10)+'';
+			table[i][j]=~~document.getElementById('n_'+i+'_'+j).value;
+			if (table[i][j]==0 && table[j][i]==0)
+				document.getElementById('n_'+i+'_'+j).parentNode.style.background='hsl('+(i<j?j*Math.floor(names.length/2+0.6)+i:i*Math.floor(names.length/2+0.6)+j)*(360/((names.length+1)*(names.length+1)/2))+'deg 100% 50% / 10%)';
+			else
+				document.getElementById('n_'+i+'_'+j).parentNode.style.background='hsl('+(i<j?j*Math.floor(names.length/2+0.6)+i:i*Math.floor(names.length/2+0.6)+j)*(360/((names.length+1)*(names.length+1)/2))+'deg 100% 50% / 90%)';
+			sum+=table[i][j];
+		}
+		if (document.getElementById('s_'+i).innerHTML!=sum+'')
+			document.getElementById('s_'+i).innerHTML=sum;
+	}
+	var s='<table border="1"><tbody>';
+	s+='<tr><th>Команда 1</th><th>Команда 2</th><th>Счёт</th></tr>';
+	for (var i=0;i<names.length;i++)
+	{
+		var sum=0;
+		for (var j=i+1;j<names.length;j++)
+		if (i!=j)
+		{ 
+			if (table[i][j]>0&& table[i][j]==table[j][i])
+				s+='<tr>'+'<td style="background:#'+('FFFF00')+'">'+names[i]+'</td>'+'<td style="background:#'+('FFFF00')+'">'+names[j]+'</td>'+'<td>'+table[i][j]+':'+table[j][i]+'</td>'+'</tr>';
+							else
+				s+='<tr>'+'<td style="background:#'+(table[i][j]>table[j][i]?'CCFFCC':'FFFFFF')+'">'+names[i]+'</td>'+'<td style="background:#'+(table[i][j]<table[j][i]?'CCFFCC':'FFFFFF')+'">'+names[j]+'</td>'+'<td>'+table[i][j]+':'+table[j][i]+'</td>'+'</tr>';
+		}
+	}
+	s+='</tbody></table>';
+	if (document.getElementById('tab2').innerHTML!=s)
+	document.getElementById('tab2').innerHTML=s;
+	},200);
+}
+function download()
+{
+	var csvContent = '';
+	csvContent+=';'+names.join(";")+'\r\n';
+	var ii=0;
+	table.forEach(function(rowArray) {
+		var row = rowArray.join(";");
+		csvContent += names[ii++]+';'+row + "\r\n";
+	});
+
+	var encodedUri = encodeURI("data:text/csv;charset=utf-8,")+"%EF%BB%BF"+encodeURI(csvContent);
+	var link = document.createElement("a");
+	link.setAttribute("href", encodedUri);
+	link.setAttribute("download", "tur_table.csv");
+	document.body.appendChild(link); // Required for FF
+
+	link.click();
+}
+		</script>
+		<style type="text/css">
+
+html, body {
+	font-family: 'Open Sans', sans-serif;
+	margin:0;
+	font-size: 40px;
+	height: 100%;
+}
+table {
+	width: 100%;
+	margin-bottom: 20px;
+	border: 1px solid #dddddd;
+	border-collapse: collapse; 
+	height: 100%;
+}
+table th {
+	font-weight: bold;
+	padding: 5px;
+	/*height: 120px;*/
+	background: #efefef;
+	border: 1px solid #dddddd;
+}
+table td {
+	border: 1px solid #dddddd;
+	/*height: 120px;*/
+	padding: 5px;
+}
+table input {
+	height: 90%;
+	width: 90%;
+	text-align-last: center;
+	font-size: 40px;
+}
+		</style>
+	</head>
+
+	<body onload="ini();">
+		<div id="tab" style="height: 100%;width: 100%; display: flex;">
+			<div id="tabl" style="height: 100%;width: 69%;">
+				
+			</div>
+			<div id="tabl" style="height: 100%;width: 2%;background: #000000;">
+				
+			</div>
+			<div id="tab2" style="height: 100%;width: 29%;font-size: 35px;">
+				
+			</div>
+		</div>
+		<button onclick="download()" style="display: block;font-size: 12px;margin: 5px 5px 5px 5px; width: 110px;">Экспортировать</button>
+	</body>
+</html>

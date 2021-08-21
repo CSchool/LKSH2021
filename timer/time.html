@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=11"> 
+		<meta name="viewport" content="width=1024">
+		<meta name="Description" CONTENT="Вебкумир">
+		<title>Таймер</title>
+		<script type="text/javascript">
+
+function SaveVal(a, b) {
+	localStorage.setItem(a, b);
+}
+function GetVal(a, b) {
+	if (null != localStorage.getItem(a))
+		return localStorage.getItem(a);
+	else
+		return b;
+}
+var _time=0;
+var _work=false;
+document.addEventListener('keydown', function(event) {
+  if (event.code=='Space')
+  {
+	if (_time!=0){_work=!_work;}else{_time=3*60;_work=false;}
+  }
+});
+setInterval(function f(){document.getElementById('b').innerHTML=_work?'Пауза':'Запуск';document.getElementById('t').innerHTML=Math.floor(Math.floor(Math.floor(_time)/60)/10)+''+Math.floor(Math.floor(Math.floor(_time)/60)%10)+':'+Math.floor((Math.floor(_time)%60)/10)+''+Math.floor((Math.floor(_time)%60)%10);},50);
+setInterval(function f(){if (_time==0 && _work) {_work=false;}if (_time>0 && _work) _time--; SaveVal('time',_time);SaveVal('work',_work);},1000);
+		</script>
+		<style type="text/css">
+
+html, body {
+	font-family: 'Open Sans', sans-serif;
+	margin:0;
+}
+
+		</style>
+	</head>
+
+	<body onload="_time=~~GetVal('time',3*60);_work=GetVal('work',false)=='true';">
+		<div>
+			<select size="1" style="display: block;font-size: 90px;margin: 50px auto 0px auto; width: 256px;">
+				<option value="1">1 тур</option>
+				<option value="2">2 тур</option>
+			</select>
+			<h1 style="font-size: 500px;margin: 0px auto 0px auto; width: 1300px;" id="t">00:00</h1>
+			<button id="b" onclick="if (_time!=0){_work=!_work;}else{_time=3*60;_work=false;}" style="display: block;font-size: 90px;margin: 0px auto 0px auto; width: 512px;">Запуск</button>
+		</div>
+		<div style="position: absolute;top: 0px;right: 0px;width: 140px;display: flex;">
+			<button id="b" onclick="if (_time==0 || confirm('Вы уверены?')){_time=60;_work=false;}" style="display: block;font-size: 12px;margin: 5px 5px 5px 5px; width: 60px;">1 минута</button>
+			<button id="b" onclick="if (_time==0 || confirm('Вы уверены?')){_time=3*60;_work=false;}" style="display: block;font-size: 12px;margin: 5px 5px 5px 5px; width: 60px;">3 минуты</button>
+		</div>
+	</body>
+</html>
